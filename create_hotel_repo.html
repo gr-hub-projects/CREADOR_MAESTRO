@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🧱 Crear nuevo Hotel / Repo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: #f5f7fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      max-width: 400px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      color: #ff6b00;
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    input[type="checkbox"] {
+      margin-right: 0.4rem;
+    }
+    button {
+      background: #ff6b00;
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 0.8rem;
+      margin-top: 1.5rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #e45e00;
+    }
+    .response {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      background: #f0f0f0;
+      padding: 0.8rem;
+      border-radius: 6px;
+      display: none;
+    }
+    .success {
+      border-left: 4px solid #28a745;
+    }
+    .error {
+      border-left: 4px solid #dc3545;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🏨 Crear Hotel / Repo</h1>
+    <form id="hotelForm">
+      <label for="hotelId">Hotel ID</label>
+      <input type="number" id="hotelId" required>
+
+      <label for="repoName">Nombre del Repo</label>
+      <input type="text" id="repoName" placeholder="Ej. Display_Royalton_Test" required>
+
+      <label for="hotelName">Nombre del Hotel (opcional)</label>
+      <input type="text" id="hotelName" placeholder="Ej. Royalton Punta Cana">
+
+      <label>
+        <input type="checkbox" id="privateRepo">
+        Repo Privado
+      </label>
+
+      <button type="submit">🚀 Crear</button>
+    </form>
+
+    <div id="responseBox" class="response"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('hotelForm');
+    const responseBox = document.getElementById('responseBox');
+
+    // ⚠️ Reemplaza esta URL con la de tu API Gateway
+    const API_URL = "https://e5ajp1wkac.execute-api.us-east-2.amazonaws.com/create";
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      responseBox.style.display = 'none';
+
+      const payload = {
+        hotelId: parseInt(document.getElementById('hotelId').value),
+        repoName: document.getElementById('repoName').value.trim(),
+        hotelName: document.getElementById('hotelName').value.trim(),
+        private: document.getElementById('privateRepo').checked
+      };
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        responseBox.style.display = 'block';
+
+        if (res.ok) {
+          responseBox.className = 'response success';
+          responseBox.textContent = `✅ ${data.message}\n\n📎 Repo URL: ${data.repo_url}`;
+        } else {
+          responseBox.className = 'response error';
+          responseBox.textContent = `❌ Error: ${data.error || JSON.stringify(data)}`;
+        }
+
+      } catch (error) {
+        responseBox.style.display = 'block';
+        responseBox.className = 'response error';
+        responseBox.textContent = `⚠️ Error de conexión: ${error.message}`;
+      }
+    });
+  </script>
+
+</body>
+</html>

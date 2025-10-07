@@ -2,132 +2,44 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <title>Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Crear Repositorio de Hotel 🏨</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #ff6600, #ff8c1a);
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .card {
-      background: rgba(0, 0, 0, 0.5);
-      padding: 2rem;
-      border-radius: 1rem;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-    input {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.3rem;
-      border: none;
-      border-radius: 4px;
-    }
-    button {
-      margin-top: 1.5rem;
-      width: 100%;
-      padding: 0.8rem;
-      background-color: #ff6600;
-      border: none;
-      color: white;
-      font-size: 1rem;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background-color: #e55b00;
-    }
-    .message {
-      margin-top: 1rem;
-      padding: 0.5rem;
-      text-align: center;
-      display: none;
-      border-radius: 4px;
-    }
-    .success {
-      background-color: #2ecc71;
-    }
-    .error {
-      background-color: #e74c3c;
-    }
+    body { display:flex; justify-content:center; align-items:center; height:100vh; background:#f2f2f2; }
+    .card { background:white; padding:2rem; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.2); }
+    input { display:block; margin-top:1rem; width:100%; padding:.5rem; }
+    button { margin-top:1rem; width:100%; padding:.6rem; background:#ff6600; color:#fff; border:none; cursor:pointer; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>🚀 Crear Hotel / Repo</h1>
-    <form id="hotelForm">
-      <label for="hotelId">Hotel ID</label>
-      <input type="number" id="hotelId" name="hotelId" required />
-
-      <label for="repoName">Nombre del Repositorio</label>
-      <input type="text" id="repoName" name="repoName" required />
-
-      <label for="hotelName">Nombre del Hotel (opcional)</label>
-      <input type="text" id="hotelName" name="hotelName" />
-
-      <button type="submit">Crear</button>
-    </form>
-
-    <div id="message" class="message"></div>
+    <h2>🔐 Iniciar Sesión</h2>
+    <input type="text" id="username" placeholder="Usuario" required>
+    <input type="password" id="password" placeholder="Contraseña" required>
+    <button onclick="login()">Entrar</button>
+    <p id="msg" style="color:red;"></p>
   </div>
 
-  <script>
-    const form = document.getElementById('hotelForm');
-    const messageBox = document.getElementById('message');
+<script>
+  async function login() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const msg = document.getElementById('msg');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      messageBox.style.display = 'none';
+    // Usuarios HARDCODEADOS (pueden estar en un JSON protegido en Lambda)
+    const users = {
+      "admin": "admin123",
+      "marketing": "mk2025",
+      "ventas": "ventas2025"
+    };
 
-      const payload = {
-        hotelId: parseInt(form.hotelId.value),
-        repoName: form.repoName.value.trim().replace(/\s+/g, '_'),
-        hotelName: form.hotelName.value.trim()
-      };
-
-      try {
-        const response = await fetch(
-          // 👇 URL de tu API Gateway con la ruta /create
-          'https://e5ajp1wkac.execute-api.us-east-2.amazonaws.com/create',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          }
-        );
-
-        const data = await response.json();
-        if (response.ok) {
-          messageBox.textContent = `✅ ${data.message}`;
-          messageBox.className = 'message success';
-        } else {
-          messageBox.textContent = `❌ Error: ${data.error || 'Ocurrió un problema'}`;
-          messageBox.className = 'message error';
-        }
-      } catch (err) {
-        messageBox.textContent = `❌ Error de conexión: ${err.message}`;
-        messageBox.className = 'message error';
-      }
-
-      messageBox.style.display = 'block';
-    });
-  </script>
+    if (users[username] && users[username] === password) {
+      localStorage.setItem('user', username);
+      window.location.href = 'form.html';
+    } else {
+      msg.textContent = '❌ Usuario o contraseña incorrectos';
+    }
+  }
+</script>
 </body>
 </html>

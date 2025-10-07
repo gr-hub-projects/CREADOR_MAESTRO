@@ -9,7 +9,7 @@
     .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); width: 320px; }
     input { display: block; margin-top: 1rem; width: 100%; padding: .6rem; }
     button { margin-top: 1rem; width: 100%; padding: .7rem; background: #ff6600; color: #fff; border: none; cursor: pointer; }
-    p { margin-top: .6rem; color: #d00; }
+    p { margin-top: .6rem; color: #d00; text-align: center; }
   </style>
 </head>
 <body>
@@ -24,7 +24,7 @@
   </div>
 
   <script>
-    const AUTH_URL = 'https://utrkqlzhqzoq2dqgphavndekvy0rhjnh.lambda-url.us-east-2.on.aws/';
+    const AUTH_URL = 'https://utrkqlzhqzoq2dqgphavndekvy0rhjnh.lambda-url.us-east-2.on.aws';
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -40,6 +40,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
         });
+
         const data = await res.json();
 
         if (res.ok) {

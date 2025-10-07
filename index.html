@@ -103,8 +103,7 @@
 
       try {
         const response = await fetch(
-          // 👇 Reemplaza esta URL con la URL de tu API Gateway (termina en /create)
-          'https://e5ajp1wkac.execute-api.us-east-2.amazonaws.com',
+          'https://e5ajp1wkac.execute-api.us-east-2.amazonaws.com/create',
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

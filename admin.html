@@ -3,37 +3,50 @@
 <head>
   <meta charset="UTF-8" />
   <title>Panel Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body { font-family: Arial; padding:2rem; background:#f2f2f2; }
-    table { width:100%; border-collapse:collapse; margin-top:1rem; background:#fff; }
-    th, td { padding:.6rem; border:1px solid #ccc; text-align:left; }
-    th { background:#ff6600; color:#fff; }
+    body { font-family: Arial; padding: 2rem; background: #f2f2f2; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: #fff; }
+    th, td { padding: .6rem; border: 1px solid #ccc; text-align: left; }
+    th { background: #ff6600; color: #fff; }
   </style>
 </head>
 <body>
-  <h1>📋 Logs de Creación</h1>
+  <h1>📋 Logs de Actividad</h1>
   <table>
-    <thead><tr><th>Usuario</th><th>Hotel ID</th><th>Repositorio</th><th>Fecha</th></tr></thead>
+    <thead><tr><th>Usuario</th><th>Hotel ID</th><th>Repositorio</th><th>Acción</th><th>Fecha</th></tr></thead>
     <tbody id="logTable"></tbody>
   </table>
 
-<script>
-  const bucketUrl = 'https://TU_BUCKET.s3.us-east-2.amazonaws.com/logs.json';
-  fetch(bucketUrl)
-    .then(res => res.json())
-    .then(data => {
-      const tbody = document.getElementById('logTable');
-      data.reverse().forEach(log => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${log.user}</td>
-          <td>${log.hotelId}</td>
-          <td>${log.repoName}</td>
-          <td>${new Date(log.timestamp).toLocaleString()}</td>
-        `;
-        tbody.appendChild(row);
+  <script>
+    const user = localStorage.getItem('user');
+    const role = localStorage.getItem('role');
+    if (!user || role !== 'admin') {
+      window.location.href = 'index.html';
+    }
+
+    // URL pública del logs.json en S3 (ajusta bucket / configuración)
+    const LOGS_URL = 'https://hotel-repos-logs-miguel.s3.us-east-2.amazonaws.com/logs.json';
+
+    fetch(LOGS_URL)
+      .then(r => r.json())
+      .then(data => {
+        const tbody = document.getElementById('logTable');
+        data.reverse().forEach(log => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${log.user}</td>
+            <td>${log.hotelId}</td>
+            <td>${log.repoName}</td>
+            <td>${log.action}</td>
+            <td>${new Date(log.timestamp).toLocaleString()}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      })
+      .catch(err => {
+        console.error('No se pudo cargar logs:', err);
       });
-    });
-</script>
+  </script>
 </body>
 </html>

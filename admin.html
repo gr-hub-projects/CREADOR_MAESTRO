@@ -1,52 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Panel Admin</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial; padding: 2rem; background: #f2f2f2; }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: #fff; }
-    th, td { padding: .6rem; border: 1px solid #ccc; text-align: left; }
-    th { background: #ff6600; color: #fff; }
+    body { font-family: sans-serif; padding: 2rem; background: #fff5f0; }
+    h1 { color: #ff6600; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; }
+    button { background: #ff6600; color: #fff; border: none; padding: .5rem 1rem; cursor: pointer; }
+    .card { background: white; padding: 1rem; margin-top: 1rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
   </style>
 </head>
 <body>
-  <h1>📋 Logs de Actividad</h1>
-  <table>
-    <thead><tr><th>Usuario</th><th>Hotel ID</th><th>Repositorio</th><th>Acción</th><th>Fecha</th></tr></thead>
-    <tbody id="logTable"></tbody>
-  </table>
+  <div class="topbar">
+    <h1>Panel de Administración 🧠</h1>
+    <button onclick="logout()">Cerrar sesión</button>
+  </div>
+
+  <div class="card">
+    <h2>👤 Usuario actual</h2>
+    <p id="user-info"></p>
+  </div>
+
+  <div class="card">
+    <h2>📝 Acciones rápidas</h2>
+    <ul>
+      <li>✅ Crear repos de hoteles</li>
+      <li>📜 Ver logs en S3</li>
+      <li>⚙️ Ajustes futuros...</li>
+    </ul>
+  </div>
 
   <script>
     const user = localStorage.getItem('user');
     const role = localStorage.getItem('role');
+
     if (!user || role !== 'admin') {
       window.location.href = 'index.html';
+    } else {
+      document.getElementById('user-info').textContent = `Usuario: ${user} | Rol: ${role}`;
     }
 
-    // URL pública del logs.json en S3 (ajusta bucket / configuración)
-    const LOGS_URL = 'https://hotel-repos-logs-miguel.s3.us-east-2.amazonaws.com/logs.json';
-
-    fetch(LOGS_URL)
-      .then(r => r.json())
-      .then(data => {
-        const tbody = document.getElementById('logTable');
-        data.reverse().forEach(log => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${log.user}</td>
-            <td>${log.hotelId}</td>
-            <td>${log.repoName}</td>
-            <td>${log.action}</td>
-            <td>${new Date(log.timestamp).toLocaleString()}</td>
-          `;
-          tbody.appendChild(row);
-        });
-      })
-      .catch(err => {
-        console.error('No se pudo cargar logs:', err);
-      });
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
   </script>
 </body>
 </html>

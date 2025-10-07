@@ -3,43 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <title>Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body { display:flex; justify-content:center; align-items:center; height:100vh; background:#f2f2f2; }
-    .card { background:white; padding:2rem; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.2); }
-    input { display:block; margin-top:1rem; width:100%; padding:.5rem; }
-    button { margin-top:1rem; width:100%; padding:.6rem; background:#ff6600; color:#fff; border:none; cursor:pointer; }
+    body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #f2f2f2; }
+    .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); width: 320px; }
+    input { display: block; margin-top: 1rem; width: 100%; padding: .6rem; }
+    button { margin-top: 1rem; width: 100%; padding: .7rem; background: #ff6600; color: #fff; border: none; cursor: pointer; }
+    p { margin-top: .6rem; color: #d00; }
   </style>
 </head>
 <body>
   <div class="card">
     <h2>🔐 Iniciar Sesión</h2>
-    <input type="text" id="username" placeholder="Usuario" required>
-    <input type="password" id="password" placeholder="Contraseña" required>
-    <button onclick="login()">Entrar</button>
-    <p id="msg" style="color:red;"></p>
+    <form id="loginForm">
+      <input id="username" placeholder="Usuario" autocomplete="username" required />
+      <input id="password" placeholder="Contraseña" type="password" autocomplete="current-password" required />
+      <button type="submit">Entrar</button>
+    </form>
+    <p id="msg"></p>
   </div>
 
-<script>
-  async function login() {
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const msg = document.getElementById('msg');
+  <script>
+    const AUTH_URL = 'https://utrkqlzhqzoq2dqgphavndekvy0rhjnh.lambda-url.us-east-2.on.aws/';
 
-    // Usuarios HARDCODEADOS (pueden estar en un JSON protegido en Lambda)
-    const users = {
-      "admin": "admin123",
-      "marketing": "mk2025",
-      "ventas": "ventas2025"
-    };
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('msg');
+      msg.textContent = '';
 
-    if (users[username] && users[username] === password) {
-      localStorage.setItem('user', username);
-      window.location.href = 'form.html';
-    } else {
-      msg.textContent = '❌ Usuario o contraseña incorrectos';
-    }
-  }
-</script>
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      try {
+        const res = await fetch(AUTH_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem('user', data.username);
+          localStorage.setItem('role', data.role || 'user');
+          if ((data.role || 'user') === 'admin') {
+            window.location.href = 'admin.html';
+          } else {
+            window.location.href = 'forms.html';
+          }
+        } else {
+          msg.textContent = data.error || 'Credenciales inválidas';
+        }
+      } catch (err) {
+        console.error('Login error:', err);
+        msg.textContent = 'Error de conexión';
+      }
+    });
+  </script>
 </body>
 </html>

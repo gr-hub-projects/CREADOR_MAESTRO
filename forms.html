@@ -1,76 +1,34 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Crear Hotel / Repo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>Panel de Usuario</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial; background: linear-gradient(135deg,#ff6600,#ff8c1a); color: #fff;
-           display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-    .card { background: rgba(0,0,0,0.6); padding: 2rem; border-radius: 10px; width: 100%; max-width: 400px; }
-    input { width: 100%; margin-top: .4rem; padding: .5rem; border: none; border-radius: 4px; }
-    button { margin-top: 1rem; width: 100%; padding: .7rem; background: #ff6600; border: none; color: #fff;
-             cursor: pointer; border-radius: 4px; }
-    .message { margin-top: 1rem; padding: .5rem; display: none; text-align: center; border-radius: 4px; }
-    .success { background: #2ecc71; }
-    .error { background: #e74c3c; }
+    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
+    h1 { color: #ff6600; }
+    button { background: #ff6600; color: #fff; border: none; padding: .5rem 1rem; cursor: pointer; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>🚀 Crear Hotel / Repo</h2>
-    <form id="hotelForm">
-      <label for="hotelId">Hotel ID</label>
-      <input type="number" id="hotelId" required />
-      <label for="repoName">Nombre del Repositorio</label>
-      <input type="text" id="repoName" required />
-      <label for="hotelName">Nombre del Hotel</label>
-      <input type="text" id="hotelName" />
-      <button type="submit">Crear</button>
-    </form>
-    <div id="message" class="message"></div>
-  </div>
+  <h1>Bienvenido 👤</h1>
+  <p>Estás en el panel de usuario.</p>
+  <p id="user-info"></p>
+  <button onclick="logout()">Cerrar sesión</button>
 
   <script>
-    const CREATE_URL = 'https://e5ajp1wkac.execute-api.us-east-2.amazonaws.com/create';  // Ajusta si tu ruta es diferente
     const user = localStorage.getItem('user');
-    if (!user) window.location.href = 'index.html';
+    const role = localStorage.getItem('role');
+    if (!user) {
+      window.location.href = 'index.html';
+    } else {
+      document.getElementById('user-info').textContent = `Usuario: ${user} | Rol: ${role}`;
+    }
 
-    const form = document.getElementById('hotelForm');
-    const messageBox = document.getElementById('message');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      messageBox.style.display = 'none';
-
-      const payload = {
-        hotelId: parseInt(form.hotelId.value),
-        repoName: form.repoName.value.trim().replace(/\s+/g, '_'),
-        hotelName: form.hotelName.value.trim(),
-        createdBy: user
-      };
-
-      try {
-        const response = await fetch(CREATE_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await response.json();
-        if (response.ok) {
-          messageBox.textContent = `✅ ${data.message}`;
-          messageBox.className = 'message success';
-        } else {
-          messageBox.textContent = `❌ ${data.error || 'Ocurrió un problema'}`;
-          messageBox.className = 'message error';
-        }
-      } catch (err) {
-        messageBox.textContent = `❌ Error de conexión: ${err.message}`;
-        messageBox.className = 'message error';
-      }
-
-      messageBox.style.display = 'block';
-    });
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
   </script>
 </body>
 </html>

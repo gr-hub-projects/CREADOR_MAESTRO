@@ -90,7 +90,11 @@
             <td>${log.hotelId || ''}</td>
             <td>${log.repoName || ''}</td>
             <td>${log.action || ''}</td>
-            <td>${log.date || ''}</td>
+            <td>${
+              log.timestamp 
+                ? new Date(log.timestamp).toLocaleString('es-MX', { timeZone: 'UTC' })
+                : '—'
+            }</td>
           </tr>
         `).join('');
       } catch (err) {

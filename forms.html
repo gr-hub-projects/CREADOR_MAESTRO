@@ -1,34 +1,105 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Panel de Usuario</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
+    body { font-family: Arial, sans-serif; padding: 2rem; max-width: 800px; margin: auto; }
     h1 { color: #ff6600; }
-    button { background: #ff6600; color: #fff; border: none; padding: .5rem 1rem; cursor: pointer; }
+    .user-info { margin-bottom: 1rem; }
+    form { background: #f9f9f9; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: .5rem; font-weight: bold; }
+    input { width: 100%; padding: .5rem; margin-top: .3rem; }
+    button { background: #ff6600; color: white; padding: .7rem 1.2rem; border: none; cursor: pointer; margin-top: 1rem; }
+    button:hover { background: #e65500; }
+    #message { margin-top: 1rem; font-weight: bold; }
   </style>
 </head>
 <body>
   <h1>Bienvenido 👤</h1>
-  <p>Estás en el panel de usuario.</p>
-  <p id="user-info"></p>
-  <button onclick="logout()">Cerrar sesión</button>
+  <div class="user-info">
+    <p id="welcome"></p>
+    <button onclick="logout()">Cerrar sesión</button>
+  </div>
+
+  <div id="repoFormContainer" style="display: none;">
+    <h2>📦 Crear nuevo repositorio de hotel</h2>
+    <form id="repoForm">
+      <label for="hotelId">ID del Hotel:</label>
+      <input id="hotelId" type="number" required>
+
+      <label for="repoName">Nombre del Repositorio:</label>
+      <input id="repoName" type="text" required>
+
+      <label for="hotelName">Nombre del Hotel:</label>
+      <input id="hotelName" type="text" required>
+
+      <label for="description">Descripción:</label>
+      <input id="description" type="text">
+
+      <button type="submit">Crear Repositorio</button>
+    </form>
+    <div id="message"></div>
+  </div>
 
   <script>
-    const user = localStorage.getItem('user');
+    const CREATE_REPO_URL = 'https://xk4pliynikmniyi6tab2ojhl340mvoau.lambda-url.us-east-2.on.aws/';
+
+    const username = localStorage.getItem('user');
     const role = localStorage.getItem('role');
-    if (!user) {
+
+    if (!username) {
       window.location.href = 'index.html';
-    } else {
-      document.getElementById('user-info').textContent = `Usuario: ${user} | Rol: ${role}`;
+    }
+
+    document.getElementById('welcome').textContent = `Usuario: ${username} | Rol: ${role}`;
+
+    // Mostrar formulario solo para admin o editor
+    if (role === 'admin' || role === 'editor') {
+      document.getElementById('repoFormContainer').style.display = 'block';
     }
 
     function logout() {
       localStorage.clear();
       window.location.href = 'index.html';
     }
+
+    // Enviar formulario
+    document.getElementById('repoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const message = document.getElementById('message');
+      message.textContent = '⏳ Creando repositorio...';
+
+      const payload = {
+        hotelId: document.getElementById('hotelId').value.trim(),
+        repoName: document.getElementById('repoName').value.trim(),
+        hotelName: document.getElementById('hotelName').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        createdBy: username
+      };
+
+      try {
+        const res = await fetch(CREATE_REPO_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          message.style.color = 'green';
+          message.textContent = `✅ ${data.message || 'Repositorio creado con éxito'}`;
+        } else {
+          message.style.color = 'red';
+          message.textContent = `❌ Error: ${data.error || 'No se pudo crear el repo'}`;
+        }
+      } catch (err) {
+        console.error(err);
+        message.style.color = 'red';
+        message.textContent = '❌ Error de conexión';
+      }
+    });
   </script>
 </body>
 </html>
